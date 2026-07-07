@@ -16,8 +16,8 @@ function M:new(cardIndex)
   local height = CARD_HEIGHT * CARD_SCALE
 
   return setmetatable({
-    x = (width+10) * cardIndex ,
-    y = 0,
+    x = (width+10) * cardIndex + 10,
+    y = 0+10,
     quad = quad,
     width = width,
     height = height,
@@ -29,20 +29,9 @@ end
 function M:update(_dt)
   local x,y = love.mouse.getPosition()
 
-  if
-    love.mouse.isDown(1) and
-    x > self.x and
-    x < self.x+self.width and
-    y > self.y and
-    y < self.y+self.height
-  then
-    self.clicked = true
-  else
-    self.clicked = false
-  end
 
   if
-    love.mouse.isDown(1) and
+    love.mouse.isDown(2) and
     x > self.x and
     x < self.x+self.width and
     y > self.y and
@@ -51,18 +40,40 @@ function M:update(_dt)
     self.locked = not self.locked
   end
 
+  if not self.locked then
+    if
+      love.mouse.isDown(1) and
+      x > self.x and
+      x < self.x+self.width and
+      y > self.y and
+      y < self.y+self.height
+    then
+      self.clicked = true
+    else
+      self.clicked = false
+    end
+
+  end
+
+
 end
 
 function M:draw()
+  love.graphics.setLineWidth(4)
   local r,g,b, a = love.graphics.getColor()
   love.graphics.draw(atlas, self.quad, self.x, self.y, 0, CARD_SCALE, CARD_SCALE)
 
-  if self.clicked then
-    love.graphics.setColor(0, 0.8, 0, 1)
-  else
+  love.graphics.setColor(0, 0, 0.8, 1)
+
+  if self.locked then
     love.graphics.setColor(0.8, 0, 0, 1)
   end
-  love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+
+  if self.clicked then
+    love.graphics.setColor(0, 0.8, 0, 1)
+  end
+
+  love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 5, 5)
   love.graphics.setColor(r,g,b, a)
 end
 
