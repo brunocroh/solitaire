@@ -42,13 +42,16 @@ function Game:quit()
 end
 
 function Game:mousepressed(x, y, btn)
-  for _, card in pairs(self.cards) do
+  for index, card in pairs(self.cards) do
     if card:contains_point(x, y) then
       if btn == 1 then
         self.active_card = card
         self.active_card.dragging = true
         self.active_card.drag_offset.x = x - card.x
         self.active_card.drag_offset.y = y - card.y
+
+        table.remove(self.cards, index)
+        table.insert(self.cards, card)
       end
 
       if btn == 2 then
