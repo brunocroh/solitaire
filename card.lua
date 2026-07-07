@@ -22,37 +22,26 @@ function M:new(cardIndex)
     width = width,
     height = height,
     clicked = false,
-    locked = true,
+    locked = false,
+    dragging = false,
+    drag_offset = {
+      x = nil,
+      y = nil,
+    }
   }, M)
 end
 
-function M:update(_dt)
-  local x,y = love.mouse.getPosition()
-
-
-  if
-    love.mouse.isDown(2) and
-    x > self.x and
-    x < self.x+self.width and
-    y > self.y and
-    y < self.y+self.height
-  then
-    self.locked = not self.locked
-  end
+function M:update(_)
+  local mx,my = love.mouse.getPosition()
 
   if not self.locked then
-    if
-      love.mouse.isDown(1) and
-      x > self.x and
-      x < self.x+self.width and
-      y > self.y and
-      y < self.y+self.height
-    then
+    if love.mouse.isDown(1) and self.dragging then
       self.clicked = true
+      self.x = mx - self.drag_offset.x
+      self.y = my - self.drag_offset.y
     else
       self.clicked = false
     end
-
   end
 
 
@@ -75,6 +64,13 @@ function M:draw()
 
   love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 5, 5)
   love.graphics.setColor(r,g,b, a)
+end
+
+function M:contains_point(x, y)
+  return x > self.x and
+    x < self.x+self.width and
+    y > self.y and
+    y < self.y+self.height
 end
 
 return M

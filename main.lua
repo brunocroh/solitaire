@@ -31,8 +31,13 @@ end
 function love.keyreleased()
 end
 
-function love.mousepressed()
+
+function love.mousepressed(x, y, btn)
+  game:mousepressed(x, y, btn)
 end
 
-function love.mousereleased()
+function love.mousereleased(x, y, btn)
+  game:mousereleased(x, y, btn)
 end
+
+

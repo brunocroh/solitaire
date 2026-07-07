@@ -12,9 +12,10 @@ function Game:new()
   for i = 0, 12, 1 do
     table.insert(cards, Card:new(i))
   end
+
   return setmetatable({
     cards = cards,
-
+    active_card = nil,
   }, Game)
 end
 
@@ -38,6 +39,33 @@ function Game:draw()
 end
 
 function Game:quit()
+end
+
+function Game:mousepressed(x, y, btn)
+  for _, card in pairs(self.cards) do
+    if card:contains_point(x, y) then
+      if btn == 1 then
+        self.active_card = card
+        self.active_card.dragging = true
+        self.active_card.drag_offset.x = x - card.x
+        self.active_card.drag_offset.y = y - card.y
+      end
+
+      if btn == 2 then
+        card.locked = not card.locked
+      end
+      break
+    end
+  end
+end
+
+function Game:mousereleased(_, _, btn)
+  if btn == 1 and self.active_card then
+    self.active_card.dragging = false
+    self.active_card.drag_offset.x = nil
+    self.active_card.drag_offset.y = nil
+    self.active_card = nil
+  end
 end
 
 return Game
