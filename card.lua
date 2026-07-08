@@ -8,6 +8,16 @@ local IMAGE_HEIGHT = 512
 local atlas = love.graphics.newImage("assets/cards.png")
 local card_back = love.graphics.newImage("assets/card_back.png")
 
+local sounds = {
+  place = love.audio.newSource("assets/sounds/card-place.mp3", "static"),
+  take = love.audio.newSource("assets/sounds/card-take.mp3", "static"),
+  flip = love.audio.newSource("assets/sounds/card-flip.mp3", "static"),
+}
+
+for _, sound in pairs(sounds) do
+  sound:setVolume(0.4)
+end
+
 function M:new(cardIndex)
   local width = Config.card.width
   local height = Config.card.height
@@ -20,11 +30,9 @@ function M:new(cardIndex)
   local scaled_width = width * Config.scale
   local scaled_height = height * Config.scale
 
-  local gap = 10
-
   return setmetatable({
-    x = col * width + gap,
-    y = row * height + gap,
+    x = 500,
+    y = 500,
     quad = quad,
     width = scaled_width,
     height = scaled_height,
@@ -54,12 +62,10 @@ function M:update(_)
       self.clicked = false
     end
   end
-
-
 end
 
 function M:draw()
-  love.graphics.setLineWidth(4)
+  love.graphics.setLineWidth(2)
   local r,g,b, a = love.graphics.getColor()
 
   if not self.back then
@@ -68,10 +74,7 @@ function M:draw()
     love.graphics.draw(card_back, self.x, self.y, 0, Config.scale, Config.scale)
   end
 
-
-
   -- DEBUG
-  --
   if DEBUG then
     love.graphics.setColor(0, 0, 0.8, 1)
 
@@ -83,7 +86,7 @@ function M:draw()
       love.graphics.setColor(0, 0.8, 0, 1)
     end
 
-    love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 5, 5)
+    love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 10, 10)
     love.graphics.setColor(r,g,b, a)
   end
 
@@ -97,12 +100,23 @@ function M:contains_point(x, y)
 end
 
 function M:flip()
+  sounds.flip:clone():play()
   self.back = not self.back
 end
 
 function M:move(x ,y)
+  sounds.place:clone():play()
   self.x = x
   self.y = y
+end
+
+function M:hold(x, y)
+  local sound = sounds.place:clone()
+  sound:setPitch(2)
+  sound:play()
+  self.dragging = true
+  self.drag_offset.x = x - self.x
+  self.drag_offset.y = y - self.y
 end
 
 return M
