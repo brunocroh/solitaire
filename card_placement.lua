@@ -18,7 +18,7 @@ end
 function M:draw()
   local r,g,b, a = love.graphics.getColor()
   love.graphics.setColor(r,r,r, 0.5)
-  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, 5, 5)
+  love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 5, 5)
 
   love.graphics.setColor(r,g,b, a)
 end
