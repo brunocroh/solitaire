@@ -2,24 +2,25 @@ local M = {}
 
 M.__index = M
 
-function M:new(x, y, disabled, invisible)
+function M:new(options)
   local width = Config.card.width * Config.scale
   local height = Config.card.height * Config.scale
 
   return setmetatable({
-    x = x,
-    y = y,
+    x = options.x,
+    y = options.y,
     width = width,
     height = height,
-    disabled = disabled,
-    invisible = invisible
+    disabled = options.disabled,
+    invisible = options.invisible,
+    ondrop = options.ondrop
   }, M)
 end
 
 function M:draw()
   local r,g,b, a = love.graphics.getColor()
   love.graphics.setColor(r,r,r, 0.5)
-  
+
   if not self.invisible then
     love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 5, 5)
   end
@@ -29,13 +30,17 @@ function M:draw()
 end
 
 function M:card_colide(card)
-  if self.disabled then
-    return false
-  end
   return card.x < self.x+self.width and
     card.x + card.width > self.x and
     card.y  < self.y+self.height and
     card.y + card.height > self.y
+end
+
+function M:ondrop(cards)
+  for _, card in pairs(cards) do
+    card:move(self.x, self.y)
+  end
+  print("custom ondrop: not implemented")
 end
 
 return M
