@@ -31,8 +31,12 @@ function M:new(cardIndex)
   local scaled_height = height * Config.scale
 
   return setmetatable({
-    x = 500,
-    y = 500,
+    x = love.graphics.getWidth() - width*2 - 20,
+    y = 20,
+    previous_position = {
+      x = nil,
+      y = nil,
+    },
     quad = quad,
     width = scaled_width,
     height = scaled_height,
