@@ -26,7 +26,7 @@ end
 function M:card_colide(card)
   return card.x < self.x+self.width and
     card.x + card.width > self.x and
-    card.y  < self.y+self.height or
+    card.y  < self.y+self.height and
     card.y + card.height > self.y
 end
 
