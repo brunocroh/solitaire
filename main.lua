@@ -3,6 +3,17 @@ local Game = require("game")
 
 local game
 
+DEBUG = true
+
+Config = {
+  scale = 2,
+  deck_size = 2,
+  card = {
+    width = 96,
+    height = 128,
+  }
+}
+
 function love.load()
   love.window.setMode(1920, 1080)
   game = Game:new()
@@ -26,9 +37,11 @@ end
 
 function love.keypressed(key)
   if key == 'r' then love.event.quit('restart') end
+  game:keypressed(key)
 end
 
-function love.keyreleased()
+function love.keyreleased(key)
+  game:keyreleased(key)
 end
 
 
