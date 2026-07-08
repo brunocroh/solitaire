@@ -1,5 +1,6 @@
 local Card = require('card')
 local CardPlacement = require('card_placement')
+local fisherYates = require('lib.fisher_yates')
 
 local Game = {
 }
@@ -17,6 +18,9 @@ function Game:new()
     table.insert(cards, Card:new(i))
   end
 
+  fisherYates(cards)
+
+  -- CREATE PLACEMENTS
   local gap = 20
   local card_width = (Config.card.width*Config.scale)
   for i = 0, 2, 1 do
@@ -38,6 +42,7 @@ function Game:new()
   local disabled = true
   local joker_zone = CardPlacement:new(love.graphics.getWidth()/2 - (card_width / 2), gap, disabled)
   table.insert(placements, joker_zone)
+
 
   return setmetatable({
     cards = cards,
