@@ -4,19 +4,25 @@ local M = {}
 
 M.__index = M
 
-local Y_OFFSET = 70
-
 function M:new(options)
   local placement = CardPlacement:new({
     x = options.x,
-    y = options.y
+    y = options.y,
+    invisible = options.invisible
   })
+
+  local offset = 70
+
+  if options.offset then
+    offset = options.offset
+  end
 
   return setmetatable({
     x = options.x,
     y = options.y,
     cards = {},
-    placement = placement
+    placement = placement,
+    offset = offset
   }, M)
 end
 
@@ -32,7 +38,7 @@ function M:push(cards)
 
     card.x = self.placement.x
     card.y = self.placement.y
-    self.placement.y = self.placement.y + Y_OFFSET
+    self.placement.y = self.placement.y + self.offset
 
 
     card.stack = self
@@ -43,7 +49,7 @@ end
 
 function M:pop()
   table.remove(self.cards, #self.cards)
-  self.placement.y = self.placement.y - Y_OFFSET
+  self.placement.y = self.placement.y - self.offset
 end
 
 function M:card_colide(x,y)

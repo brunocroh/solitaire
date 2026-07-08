@@ -31,8 +31,8 @@ function Game:new()
   for i = 0, 7, 1 do
     local stack = CardStack:new({
       x = x_offset * i + gap,
-      y = y_offset
-
+      y = y_offset,
+      invisible = true
     })
     table.insert(card_stacks, stack)
   end
@@ -47,7 +47,8 @@ function Game:new()
   for i = 0, 2, 1 do
     local placement = CardStack:new({
       x = card_width * i + gap + gap * i,
-      y = gap
+      y = gap,
+      offset = 0
     })
     table.insert(tmp_zones, placement)
     table.insert(card_stacks, placement)
@@ -59,7 +60,8 @@ function Game:new()
 
     local placement = CardStack:new({
       x = love.graphics.getWidth() - (card_width + margin + gap + incremental_gap),
-      y = gap
+      y = gap,
+      offset = 0
     })
 
     table.insert(suit_zones, placement)
