@@ -22,8 +22,8 @@ function M:new(cardIndex)
   local width = Config.card.width
   local height = Config.card.height
 
-  local col = (cardIndex * IMAGE_WIDTH) / IMAGE_WIDTH % 13
-  local row = math.floor((cardIndex * IMAGE_WIDTH) / IMAGE_WIDTH / 13)
+  local col = (cardIndex * IMAGE_WIDTH) / IMAGE_WIDTH % 9
+  local row = math.floor((cardIndex * IMAGE_WIDTH) / IMAGE_WIDTH / 9)
 
   local quad = love.graphics.newQuad(width * col, row * height, width, height, IMAGE_WIDTH, IMAGE_HEIGHT)
 
@@ -40,6 +40,8 @@ function M:new(cardIndex)
     locked = false,
     dragging = false,
     back = false,
+    value = col + 1,
+    suit = row + 1,
     animation = {
       flip = 1
     },

@@ -12,6 +12,7 @@ function Game:new()
   local tmp_zones = {}
   local suit_zones = {}
 
+  -- CREATE CARDS
   for i = 0, Config.deck_size - 1, 1 do
     table.insert(cards, Card:new(i))
   end
@@ -60,6 +61,10 @@ end
 function Game:draw()
   local r,g,b = love.math.colorFromBytes(53,101, 77)
   love.graphics.setBackgroundColor(r, g, b, 1)
+  if self.active_card then
+    love.graphics.print("value: " .. self.active_card.value, love.graphics.getWidth()/2 - 200, 10)
+    love.graphics.print("suit: " .. self.active_card.suit, love.graphics.getWidth()/2 - 200, 30)
+  end
 
   for _, placement in pairs(self.placements) do
     placement:draw()

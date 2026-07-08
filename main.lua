@@ -7,7 +7,7 @@ DEBUG = true
 
 Config = {
   scale = 2,
-  deck_size = 2,
+  deck_size = 27,
   card = {
     width = 96,
     height = 128,
@@ -37,6 +37,9 @@ end
 
 function love.keypressed(key)
   if key == 'r' then love.event.quit('restart') end
+  if key == 'escape' then
+    game = Game:new()
+  end
   game:keypressed(key)
 end
 
