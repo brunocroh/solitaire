@@ -1,4 +1,4 @@
-DEBUG = false
+DEBUG = true
 
 Config = {
   scale = 2,

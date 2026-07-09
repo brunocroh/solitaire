@@ -3,7 +3,9 @@ local Card = require('card')
 local CardStack = require('card_stack')
 local fisherYates = require('lib.fisher_yates')
 
-local Game = { }
+local Game = {
+  auto_fetch_delay = 0.2
+}
 
 Game.__index = Game
 
@@ -19,7 +21,9 @@ function Game:new()
   for i = 0, Config.deck_size - 1, 1 do
     table.insert(cards, Card:new(i))
   end
+
   local joker = Card:new(27)
+
   -- Joker card
   table.insert(cards, Card:new(27))
 
@@ -94,6 +98,37 @@ function Game:new()
       invisible = false,
       offset = 0,
       bg = bg_suit_stacks[i+1],
+      auto_fetch = function(ctx)
+        if not ctx.ready then
+          return
+        end
+
+        local top = ctx.cards[#ctx.cards]
+        local value = top and top.value or 0
+        print(value, top, #ctx.cards)
+
+        local tmp_card
+        for _, c in pairs(cards) do
+          if c.value == value+1 and c.suit == i+1 then
+            if not c.locked then
+              tmp_card = c
+              ctx:push({c})
+              c.locked = true
+            end
+            break
+          end
+        end
+
+        if tmp_card then
+          for j, cc in pairs(cards) do
+            if tmp_card == cc then
+              table.remove(cards, j)
+              table.insert(cards, cc)
+              break
+            end
+          end
+        end
+      end,
       ondrop = function (ctx, cc)
         local top = ctx.cards[#ctx.cards]
 
@@ -123,6 +158,21 @@ function Game:new()
     disabled = disabled,
     offset = 0,
     bg = "joker",
+    auto_fetch = function(ctx)
+      if not ctx.ready then
+        return
+      end
+
+      for _, c in pairs(cards) do
+        if c.value == joker.value and c.suit == joker.suit then
+          if not c.locked then
+            c:move(ctx.x, ctx.y)
+            c.locked = true
+          end
+          break
+        end
+      end
+    end,
     ondrop = function (ctx, card, n)
       if n > 1 then
         return false
@@ -153,11 +203,25 @@ function Game:new()
 end
 
 function Game:load()
+  for _, stack in pairs(self.card_stacks) do
+    stack.ready = true
+  end
 end
 
 function Game:update(dt)
   for _, card in pairs(self.cards) do
     card:update(dt)
+  end
+
+  if self.auto_fetch_delay <= 0 then
+    for _, stack in pairs(self.card_stacks) do
+      if stack.auto_fetch then
+        stack:auto_fetch()
+      end
+    end
+    self.auto_fetch_delay = 0.2
+  else
+    self.auto_fetch_delay = self.auto_fetch_delay - dt
   end
 end
 
@@ -210,7 +274,6 @@ function Game:mousepressed(x, y, btn)
                 break
               end
             end
-
           end
         end
         break

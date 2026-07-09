@@ -90,21 +90,21 @@ function M:draw()
     love.graphics.draw(card_back, self.x, self.y, 0, Config.scale, Config.scale)
   end
 
-  -- -- DEBUG
-  -- if DEBUG then
-  --   love.graphics.setColor(0, 0, 0.8, 1)
-  --
-  --   if self.locked then
-  --     love.graphics.setColor(0.8, 0, 0, 1)
-  --   end
-  --
-  --   if self.clicked then
-  --     love.graphics.setColor(0, 0.8, 0, 1)
-  --   end
-  --
-  --   love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 10, 10)
-  --   love.graphics.setColor(r,g,b, a)
-  -- end
+  -- DEBUG
+  if DEBUG then
+    love.graphics.setColor(0, 0, 0.8, 1)
+
+    if self.locked then
+      love.graphics.setColor(0.8, 0, 0, 1)
+    end
+
+    if self.clicked then
+      love.graphics.setColor(0, 0.8, 0, 1)
+    end
+
+    love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 10, 10)
+    love.graphics.setColor(r,g,b, a)
+  end
 
 end
 

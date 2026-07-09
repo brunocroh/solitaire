@@ -31,7 +31,9 @@ function M:new(options)
     cards = {},
     placement = placement,
     offset = offset,
-    ondrop = options.ondrop
+    ondrop = options.ondrop,
+    auto_fetch = options.auto_fetch,
+    ready = false
   }, M)
 end
 

@@ -7,6 +7,7 @@ function love.load()
   love.window.setMode(1920, 1080)
   game = Game:new()
 
+  game:load()
   d.load()
 end
 
