@@ -41,7 +41,7 @@ end
 
 function M:push(cards, disable)
   if not disable then
-    if not self.ondrop(self, cards[1]) then
+    if not self.ondrop(self, cards[1], #cards) then
       return false
     end
   end

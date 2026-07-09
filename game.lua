@@ -75,8 +75,8 @@ function Game:new()
       x = card_width * i + gap + gap * i,
       y = gap,
       offset = 0,
-      ondrop = function (ctx)
-        return #ctx.cards < 1
+      ondrop = function (ctx, _, n)
+        return #ctx.cards < 1 and n == 1
       end
     })
     table.insert(tmp_zones, placement)
@@ -123,7 +123,11 @@ function Game:new()
     disabled = disabled,
     offset = 0,
     bg = "joker",
-    ondrop = function (ctx, card)
+    ondrop = function (ctx, card, n)
+      if n > 1 then
+        return false
+      end
+      
       if #ctx.cards ~= 0 then
         return false
       end
@@ -239,8 +243,6 @@ function Game:mousereleased(_, _, btn)
       if not validMove then
         c.x = c.previous_position.x
         c.y = c.previous_position.y
-
-        print(c.x, c.y, c.previous_position.x, c.previous_position.y, #self.active_card)
 
         c.previous_position.x = nil
         c.previous_position.y = nil
