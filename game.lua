@@ -32,7 +32,10 @@ function Game:new()
     local stack = CardStack:new({
       x = x_offset * i + gap,
       y = y_offset,
-      invisible = true
+      invisible = true,
+      ondrop = function ()
+        return true
+      end
     })
     table.insert(card_stacks, stack)
   end
@@ -48,7 +51,11 @@ function Game:new()
     local placement = CardStack:new({
       x = card_width * i + gap + gap * i,
       y = gap,
-      offset = 0
+      offset = 0,
+      ondrop = function (ctx)
+        print("ctx cards = " .. #ctx.cards)
+        return #ctx.cards < 1
+      end
     })
     table.insert(tmp_zones, placement)
     table.insert(card_stacks, placement)
@@ -61,7 +68,10 @@ function Game:new()
     local placement = CardStack:new({
       x = love.graphics.getWidth() - (card_width + margin + gap + incremental_gap),
       y = gap,
-      offset = 0
+      offset = 0,
+      ondrop = function ()
+        return true
+      end
     })
 
     table.insert(suit_zones, placement)
@@ -72,7 +82,10 @@ function Game:new()
   local joker_zone = CardStack:new({
     x = love.graphics.getWidth()/2 - (card_width / 2),
     y = gap,
-    disabled = disabled
+    disabled = disabled,
+    ondrop = function ()
+      return true
+    end
   })
   table.insert(card_stacks, joker_zone)
 
@@ -157,8 +170,7 @@ function Game:mousereleased(_, _, btn)
 
     for _, stack in pairs(self.card_stacks) do
       if stack:card_colide(self.active_card) then
-        stack:push({self.active_card})
-        validMove = true
+        validMove = stack:push({self.active_card})
         break
       end
     end

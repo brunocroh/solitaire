@@ -11,6 +11,10 @@ function M:new(options)
     invisible = options.invisible
   })
 
+  if not options.ondrop then
+    error("options.ondrop is mandatory")
+  end
+
   local offset = 70
 
   if options.offset then
@@ -22,7 +26,8 @@ function M:new(options)
     y = options.y,
     cards = {},
     placement = placement,
-    offset = offset
+    offset = offset,
+    ondrop = options.ondrop
   }, M)
 end
 
@@ -36,6 +41,10 @@ function M:push(cards)
       card.stack:pop()
     end
 
+    if not self:ondrop(self, cards) then
+      return false
+    end
+
     card.x = self.placement.x
     card.y = self.placement.y
     self.placement.y = self.placement.y + self.offset
@@ -44,6 +53,7 @@ function M:push(cards)
     card.stack = self
 
     table.insert(self.cards, card)
+    return true
   end
 end
 
