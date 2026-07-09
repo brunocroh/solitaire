@@ -25,7 +25,17 @@ function M:new(cardIndex)
   local col = (cardIndex * IMAGE_WIDTH) / IMAGE_WIDTH % 9
   local row = math.floor((cardIndex * IMAGE_WIDTH) / IMAGE_WIDTH / 9)
 
-  local quad = love.graphics.newQuad(width * col, row * height, width, height, IMAGE_WIDTH, IMAGE_HEIGHT)
+  local quad
+
+  if cardIndex == 36 then
+    quad = love.graphics.newQuad(width * 10, height * 3, width, height, IMAGE_WIDTH, IMAGE_HEIGHT)
+  elseif cardIndex == 37 then
+    quad = love.graphics.newQuad(width * 11, height * 3, width, height, IMAGE_WIDTH, IMAGE_HEIGHT)
+  elseif cardIndex == 38 then
+    quad = love.graphics.newQuad(width * 12, height * 3, width, height, IMAGE_WIDTH, IMAGE_HEIGHT)
+  else
+    quad = love.graphics.newQuad(width * col, row * height, width, height, IMAGE_WIDTH, IMAGE_HEIGHT)
+  end
 
   local scaled_width = width * Config.scale
   local scaled_height = height * Config.scale
@@ -80,21 +90,21 @@ function M:draw()
     love.graphics.draw(card_back, self.x, self.y, 0, Config.scale, Config.scale)
   end
 
-  -- DEBUG
-  if DEBUG then
-    love.graphics.setColor(0, 0, 0.8, 1)
-
-    if self.locked then
-      love.graphics.setColor(0.8, 0, 0, 1)
-    end
-
-    if self.clicked then
-      love.graphics.setColor(0, 0.8, 0, 1)
-    end
-
-    love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 10, 10)
-    love.graphics.setColor(r,g,b, a)
-  end
+  -- -- DEBUG
+  -- if DEBUG then
+  --   love.graphics.setColor(0, 0, 0.8, 1)
+  --
+  --   if self.locked then
+  --     love.graphics.setColor(0.8, 0, 0, 1)
+  --   end
+  --
+  --   if self.clicked then
+  --     love.graphics.setColor(0, 0.8, 0, 1)
+  --   end
+  --
+  --   love.graphics.rectangle("line", self.x, self.y, self.width, self.height, 10, 10)
+  --   love.graphics.setColor(r,g,b, a)
+  -- end
 
 end
 

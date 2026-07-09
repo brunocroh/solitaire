@@ -3,17 +3,6 @@ local Game = require("game")
 
 local game
 
-DEBUG = false
-
-Config = {
-  scale = 2,
-  deck_size = 27,
-  card = {
-    width = 96,
-    height = 128,
-  }
-}
-
 function love.load()
   love.window.setMode(1920, 1080)
   game = Game:new()

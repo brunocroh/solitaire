@@ -4,11 +4,13 @@ local M = {}
 
 M.__index = M
 
+
 function M:new(options)
   local placement = CardPlacement:new({
     x = options.x,
     y = options.y,
-    invisible = options.invisible
+    invisible = options.invisible,
+    bg = options.bg
   })
 
   if not options.ondrop then
@@ -21,7 +23,9 @@ function M:new(options)
     offset = options.offset
   end
 
+
   return setmetatable({
+    id = options.id,
     x = options.x,
     y = options.y,
     cards = {},
@@ -35,12 +39,14 @@ function M:draw()
   self.placement:draw()
 end
 
-function M:push(cards)
-  for _, card in pairs(cards) do
-
-    if not self.ondrop(self, card) then
+function M:push(cards, disable)
+  if not disable then
+    if not self.ondrop(self, cards[1]) then
       return false
     end
+  end
+
+  for _, card in pairs(cards) do
 
     if card.stack then
       card.stack:pop()
@@ -49,18 +55,48 @@ function M:push(cards)
     card.x = self.placement.x
     card.y = self.placement.y
 
-
     card.stack = self
 
     table.insert(self.cards, card)
     self.placement.y = self.y + #self.cards * self.offset
-    return true
+    self:manage_lock_state()
   end
+  return true
 end
 
 function M:pop()
   table.remove(self.cards, #self.cards)
   self.placement.y = self.placement.y - self.offset
+  self:manage_lock_state()
+end
+
+function M:manage_lock_state()
+  local locked = false
+
+  local top = self.cards[#self.cards]
+
+  if not top then
+    return
+  end
+  top.locked = locked
+  for i = #self.cards, 1, -1 do
+    local hi = self.cards[i]
+    if i == 1 then
+      hi.locked = locked
+      break
+    end
+
+    local lo = self.cards[i-1]
+    if lo.value-1 == hi.value and lo.suit ~= hi.suit then
+      locked = hi.locked
+    else
+      locked = true
+    end
+
+    lo.locked = locked
+  end
+
+
 end
 
 function M:card_colide(x,y)

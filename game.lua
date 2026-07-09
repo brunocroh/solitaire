@@ -1,3 +1,4 @@
+require('enum')
 local Card = require('card')
 local CardStack = require('card_stack')
 local fisherYates = require('lib.fisher_yates')
@@ -5,6 +6,8 @@ local fisherYates = require('lib.fisher_yates')
 local Game = { }
 
 Game.__index = Game
+
+local bg_suit_stacks = {"ace_diamonds", "ace_heart", "ace_spades"}
 
 function Game:new()
   local cards = {}
@@ -15,6 +18,15 @@ function Game:new()
   -- CREATE CARDS
   for i = 0, Config.deck_size - 1, 1 do
     table.insert(cards, Card:new(i))
+  end
+  local joker = Card:new(27)
+  -- Joker card
+  table.insert(cards, Card:new(27))
+
+  for _ = 1, 4, 1 do
+    table.insert(cards, Card:new(36))
+    table.insert(cards, Card:new(37))
+    table.insert(cards, Card:new(38))
   end
 
   fisherYates(cards)
@@ -30,10 +42,19 @@ function Game:new()
   -- CREATE STACKS
   for i = 0, 7, 1 do
     local stack = CardStack:new({
+      id = "card_stack_" .. i,
       x = x_offset * i + gap,
       y = y_offset,
-      invisible = false,
-      ondrop = function ()
+      invisible = not DEBUG,
+      ondrop = function (ctx, card)
+        local top = ctx.cards[#ctx.cards]
+
+        if top then
+          if top.suit == card.suit or top.value-1 ~= card.value  then
+            return false
+          end
+        end
+
         return true
       end
     })
@@ -43,17 +64,18 @@ function Game:new()
   -- ADD CARTS TO STACKS
   for k, card in pairs(cards) do
     local i = k % 8
-    card_stacks[i+1]:push({card})
+    local disable = true
+    card_stacks[i+1]:push({card}, disable)
   end
 
   -- CREATE PLACEMENTS
   for i = 0, 2, 1 do
     local placement = CardStack:new({
+      id = "tmp_stack_" .. i,
       x = card_width * i + gap + gap * i,
       y = gap,
       offset = 0,
       ondrop = function (ctx)
-        print("ctx cards = " .. #ctx.cards)
         return #ctx.cards < 1
       end
     })
@@ -66,10 +88,12 @@ function Game:new()
     local incremental_gap = gap * i
 
     local placement = CardStack:new({
+      id = "suit_stack_" .. i,
       x = love.graphics.getWidth() - (card_width + margin + gap + incremental_gap),
       y = gap,
       invisible = false,
       offset = 0,
+      bg = bg_suit_stacks[i+1],
       ondrop = function (ctx, cc)
         local top = ctx.cards[#ctx.cards]
 
@@ -90,13 +114,25 @@ function Game:new()
   end
 
   local disabled = true
+
+
   local joker_zone = CardStack:new({
+    id = "joker_stack",
     x = love.graphics.getWidth()/2 - (card_width / 2),
     y = gap,
     disabled = disabled,
     offset = 0,
-    ondrop = function ()
-      return true
+    bg = "joker",
+    ondrop = function (ctx, card)
+      if #ctx.cards ~= 0 then
+        return false
+      end
+
+      if card.value == 1 and card.suit == 4 then
+        return true
+      end
+
+      return false
     end
   })
   table.insert(card_stacks, joker_zone)
@@ -104,7 +140,7 @@ function Game:new()
 
   return setmetatable({
     cards = cards,
-    active_card = nil,
+    active_card = {},
     tmp_zones = tmp_zones,
     suit_zones = suit_zones,
     joker_zone = joker_zone,
@@ -132,20 +168,6 @@ function Game:draw()
   for _, card in pairs(self.cards) do
     card:draw()
   end
-
-  if DEBUG then
-    local px = love.graphics.getWidth()/2 - 200
-    if self.active_card then
-      love.graphics.print("value: " .. self.active_card.value, px, 10)
-      love.graphics.print("suit: " .. self.active_card.suit, px, 30)
-      love.graphics.print("x: " .. self.active_card.x, px, 50)
-      love.graphics.print("y: " .. self.active_card.y, px, 70)
-    end
-
-    local mx, my = love.mouse.getPosition()
-    love.graphics.print("mx: " .. mx, px, 90)
-    love.graphics.print("my: " .. my, px, 110)
-  end
 end
 
 function Game:quit()
@@ -157,15 +179,37 @@ function Game:mousepressed(x, y, btn)
     if card:contains_point(x, y) then
       if btn == 1 then
         if not card.locked then
-          self.active_card = card
-          self.active_card.previous_position.x = self.active_card.x
-          self.active_card.previous_position.y = self.active_card.y
+          local stack = card.stack
+          local found = false
 
-          self.active_card:hold(x,y)
+          for _, c in pairs(stack.cards) do
+            if c == card then
+              found = true
+            end
 
-          table.remove(self.cards, index)
-          table.insert(self.cards, card)
+            if found then
+              c.previous_position.x = c.x
+              c.previous_position.y = c.y
+
+              c:hold(x,y)
+
+              table.insert(self.active_card, c)
+
+            end
+          end
+
+          for _, c in pairs(self.active_card) do
+            for j, cc in pairs(self.cards) do
+              if c == cc then
+                table.remove(self.cards, j)
+                table.insert(self.cards, c)
+                break
+              end
+            end
+
+          end
         end
+        break
       end
 
       if btn == 2 then
@@ -177,28 +221,33 @@ function Game:mousepressed(x, y, btn)
 end
 
 function Game:mousereleased(_, _, btn)
-  if btn == 1 and self.active_card then
+  if btn == 1 and #self.active_card > 0 then
     local validMove = false
 
     for _, stack in pairs(self.card_stacks) do
-      if stack:card_colide(self.active_card) then
-        validMove = stack:push({self.active_card})
+      if stack:card_colide(self.active_card[1]) then
+        validMove = stack:push(self.active_card)
         break
       end
     end
 
-    self.active_card.dragging = false
-    self.active_card.drag_offset.x = nil
-    self.active_card.drag_offset.y = nil
+    for _, c in pairs(self.active_card) do
+      c.dragging = false
+      c.drag_offset.x = nil
+      c.drag_offset.y = nil
 
-    if not validMove then
-      self.active_card.x = self.active_card.previous_position.x
-      self.active_card.y = self.active_card.previous_position.y
+      if not validMove then
+        c.x = c.previous_position.x
+        c.y = c.previous_position.y
 
-      self.active_card.previous_position.x = nil
-      self.active_card.previous_position.y = nil
+        print(c.x, c.y, c.previous_position.x, c.previous_position.y, #self.active_card)
+
+        c.previous_position.x = nil
+        c.previous_position.y = nil
+      end
     end
-    self.active_card = nil
+    self.active_card = {}
+
   end
 end
 
