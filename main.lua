@@ -3,7 +3,7 @@ local Game = require("game")
 
 local game
 
-DEBUG = true
+DEBUG = false
 
 Config = {
   scale = 2,

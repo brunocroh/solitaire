@@ -37,22 +37,23 @@ end
 
 function M:push(cards)
   for _, card in pairs(cards) do
+
+    if not self.ondrop(self, card) then
+      return false
+    end
+
     if card.stack then
       card.stack:pop()
     end
 
-    if not self:ondrop(self, cards) then
-      return false
-    end
-
     card.x = self.placement.x
     card.y = self.placement.y
-    self.placement.y = self.placement.y + self.offset
 
 
     card.stack = self
 
     table.insert(self.cards, card)
+    self.placement.y = self.y + #self.cards * self.offset
     return true
   end
 end

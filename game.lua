@@ -32,7 +32,7 @@ function Game:new()
     local stack = CardStack:new({
       x = x_offset * i + gap,
       y = y_offset,
-      invisible = true,
+      invisible = false,
       ondrop = function ()
         return true
       end
@@ -68,8 +68,19 @@ function Game:new()
     local placement = CardStack:new({
       x = love.graphics.getWidth() - (card_width + margin + gap + incremental_gap),
       y = gap,
+      invisible = false,
       offset = 0,
-      ondrop = function ()
+      ondrop = function (ctx, cc)
+        local top = ctx.cards[#ctx.cards]
+
+        if cc.suit ~= i+1 then
+          return false
+        end
+
+        if top and top.value + 1 ~= cc.value then
+          return false
+        end
+
         return true
       end
     })
@@ -83,6 +94,7 @@ function Game:new()
     x = love.graphics.getWidth()/2 - (card_width / 2),
     y = gap,
     disabled = disabled,
+    offset = 0,
     ondrop = function ()
       return true
     end
