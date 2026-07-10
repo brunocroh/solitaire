@@ -166,7 +166,7 @@ function Game:new()
       for _, c in pairs(cards) do
         if c.value == joker.value and c.suit == joker.suit then
           if not c.locked then
-            c:move(ctx.x, ctx.y)
+            ctx:push({c})
             c.locked = true
           end
           break
