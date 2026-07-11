@@ -2,6 +2,7 @@ require('enum')
 local Card = require('card')
 local CardStack = require('card_stack')
 local fisherYates = require('lib.fisher_yates')
+local Gui = require('lib.gui')
 
 local Game = {
   auto_fetch_delay = 0.2
@@ -105,7 +106,6 @@ function Game:new()
 
         local top = ctx.cards[#ctx.cards]
         local value = top and top.value or 0
-        print(value, top, #ctx.cards)
 
         local tmp_card
         for _, c in pairs(cards) do
@@ -150,7 +150,6 @@ function Game:new()
 
   local disabled = true
 
-
   local joker_zone = CardStack:new({
     id = "joker_stack",
     x = love.graphics.getWidth()/2 - (card_width / 2),
@@ -190,6 +189,32 @@ function Game:new()
     end
   })
   table.insert(card_stacks, joker_zone)
+
+  -- Define GUI elements
+  Gui.Button:new({
+    x = 760,
+    y = 40,
+    label = "Test button",
+    onclick = function()
+      print"hello1"
+    end
+  })
+  Gui.Button:new({
+    x = 760,
+    y = 70,
+    label = "Test button",
+    onclick = function()
+      print"hello2"
+    end
+  })
+  Gui.Button:new({
+    x = 760,
+    y = 100,
+    label = "Test button",
+    onclick = function()
+      print"hello3"
+    end
+  })
 
 
   return setmetatable({
@@ -236,6 +261,8 @@ function Game:draw()
   for _, card in pairs(self.cards) do
     card:draw()
   end
+
+  Gui:draw()
 end
 
 function Game:quit()
@@ -319,8 +346,13 @@ end
 function Game:keypressed(key)
   print("pressed: "..key)
 
-  if not key == "f" then
+  if not key == "f" or not key == "space" then
     return
+  end
+
+  if key == "space" then
+    local mx, my = love.mouse.getPosition()
+    print(string.format("mx:%d my:%d", mx,my))
   end
 
   local mx, my = love.mouse.getPosition()
