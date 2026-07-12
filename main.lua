@@ -31,6 +31,7 @@ function love.keypressed(key)
   if key == 'r' then love.event.quit('restart') end
   if key == 'escape' then
     game = Game:new()
+    game:load()
   end
   game:keypressed(key)
 end

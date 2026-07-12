@@ -36,6 +36,9 @@ function Game:new()
 
       if free_zone then
         free_zone:push(cards, true)
+        for _, c in ipairs(cards) do
+          c:flip()
+        end
       end
     end
   end
@@ -147,7 +150,7 @@ function Game:new()
         local value = top and top.value or 0
 
         local tmp_card
-        for _, c in pairs(cards) do
+        for _, c in ipairs(cards) do
           if c.value == value+1 and c.suit == i+1 then
             if not c.locked then
               tmp_card = c
@@ -159,7 +162,7 @@ function Game:new()
         end
 
         if tmp_card then
-          for j, cc in pairs(cards) do
+          for j, cc in ipairs(cards) do
             if tmp_card == cc then
               table.remove(cards, j)
               table.insert(cards, cc)
