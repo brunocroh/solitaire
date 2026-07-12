@@ -41,7 +41,7 @@ function M:draw()
   self.placement:draw()
 end
 
-function M:push(cards, disable)
+function M:push(cards, disable, animated)
   if not disable then
     if not self.ondrop(self, cards[1], #cards) then
       return false
@@ -49,13 +49,11 @@ function M:push(cards, disable)
   end
 
   for _, card in pairs(cards) do
-
     if card.stack then
       card.stack:pop()
     end
 
-    card.x = self.placement.x
-    card.y = self.placement.y
+    card:move(self.placement.x,self.placement.y, animated)
 
     card.stack = self
 

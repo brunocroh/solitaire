@@ -47,6 +47,11 @@ function M:new(cardIndex)
       x = nil,
       y = nil,
     },
+    target_position = {
+      moving = false,
+      x = nil,
+      y = nil,
+    },
     quad = quad,
     width = scaled_width,
     height = scaled_height,
@@ -66,7 +71,8 @@ function M:new(cardIndex)
   }, M)
 end
 
-function M:update(_)
+function M:update(dt)
+  local speed = 3000
   local mx,my = love.mouse.getPosition()
 
   if not self.locked then
@@ -77,6 +83,25 @@ function M:update(_)
     else
       self.clicked = false
     end
+  end
+
+  if self.target_position.moving  then
+    local dx = self.x + speed * self.target_position.cos * dt
+    local dy = self.y + speed * self.target_position.sin * dt
+
+    local distance_x = self.target_position.x - self.x
+    local distance_y = self.target_position.y - self.y
+    local distance = math.sqrt(distance_x * distance_x + distance_y * distance_y)
+
+    if distance > speed * dt then
+      self.x = dx
+      self.y = dy
+    else
+      self.x = self.target_position.x
+      self.y = self.target_position.y
+      self.target_position.moving = false
+    end
+
   end
 end
 
@@ -120,10 +145,22 @@ function M:flip()
   self.back = not self.back
 end
 
-function M:move(x ,y)
+function M:move(x, y, animated)
+  if animated then
+    local angle = math.atan2(y - self.y, x - self.x)
+    local cos = math.cos(angle)
+    local sin = math.sin(angle)
+
+    self.target_position.x =  x
+    self.target_position.y =  y
+    self.target_position.cos = cos
+    self.target_position.sin = sin
+    self.target_position.moving = true
+  else
+    self.x = x
+    self.y = y
+  end
   sounds.place:clone():play()
-  self.x = x
-  self.y = y
 end
 
 function M:hold(x, y)

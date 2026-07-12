@@ -154,7 +154,7 @@ function Game:new()
           if c.value == value+1 and c.suit == i+1 then
             if not c.locked then
               tmp_card = c
-              ctx:push({c})
+              ctx:push({c}, false, true)
               c.locked = true
             end
             break
