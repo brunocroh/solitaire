@@ -13,10 +13,41 @@ Game.__index = Game
 local bg_suit_stacks = {"ace_diamonds", "ace_heart", "ace_spades"}
 
 function Game:new()
+  -- internal methods
+  local function move_royals(cards, zones)
+    local isValid = true
+
+    for _, jack in pairs(cards) do
+      if jack.locked then
+        isValid = false
+        break
+      end
+    end
+
+    if isValid then
+      local free_zone
+
+      for _, zone in pairs(zones) do
+        if #zone.cards == 0 or zone.cards[1].value == cards[1].value then
+          free_zone = zone
+          break
+        end
+      end
+
+      if free_zone then
+        free_zone:push(cards, true)
+      end
+    end
+  end
+
   local cards = {}
   local tmp_zones = {}
   local suit_zones = {}
   local card_stacks = {}
+
+  local jacks = {}
+  local queens = {}
+  local kings = {}
 
   -- CREATE CARDS
   for i = 0, Config.deck_size - 1, 1 do
@@ -29,9 +60,17 @@ function Game:new()
   table.insert(cards, Card:new(27))
 
   for _ = 1, 4, 1 do
-    table.insert(cards, Card:new(36))
-    table.insert(cards, Card:new(37))
-    table.insert(cards, Card:new(38))
+    local jack = Card:new(36)
+    table.insert(cards, jack)
+    table.insert(jacks, jack)
+
+    local queen = Card:new(37)
+    table.insert(cards, queen)
+    table.insert(queens, queen)
+
+    local king = Card:new(38)
+    table.insert(kings, king)
+    table.insert(cards, king)
   end
 
   fisherYates(cards)
@@ -176,7 +215,7 @@ function Game:new()
       if n > 1 then
         return false
       end
-      
+
       if #ctx.cards ~= 0 then
         return false
       end
@@ -194,9 +233,9 @@ function Game:new()
   Gui.Button:new({
     x = 740,
     y = 20,
-    label = "K",
+    label = "J",
     onclick = function()
-      print"hello1"
+      move_royals(jacks, tmp_zones)
     end
   })
   Gui.Button:new({
@@ -204,15 +243,15 @@ function Game:new()
     y = 100,
     label = "Q",
     onclick = function()
-      print"hello2"
+      move_royals(queens, tmp_zones)
     end
   })
   Gui.Button:new({
     x = 740,
     y = 180,
-    label = "J",
+    label = "K",
     onclick = function()
-      print"hello3"
+      move_royals(kings, tmp_zones)
     end
   })
 
@@ -223,7 +262,10 @@ function Game:new()
     tmp_zones = tmp_zones,
     suit_zones = suit_zones,
     joker_zone = joker_zone,
-    card_stacks = card_stacks
+    card_stacks = card_stacks,
+    jacks = jacks,
+    queens = queens,
+    kings = kings,
   }, Game)
 end
 

@@ -89,7 +89,6 @@ function Button:draw()
   self.sprite:draw()
 
   -- text
-  print(self.x, self.text.x)
   love.graphics.setColor(unpack(self.text.color))
   love.graphics.print(self.label, self.text.x, self.text.y)
 

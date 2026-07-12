@@ -42,6 +42,7 @@ function M:draw()
 end
 
 function M:push(cards, disable)
+  print(cards, disable)
   if not disable then
     if not self.ondrop(self, cards[1], #cards) then
       return false
