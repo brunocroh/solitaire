@@ -8,6 +8,12 @@ function M.save_window_position()
 end
 
 function M.load()
+  local file = love.filesystem.getInfo(SETTINGS_FILE)
+
+  if not file then
+    return
+  end
+
   local data = love.filesystem.read(SETTINGS_FILE)
   if not data then
     return
