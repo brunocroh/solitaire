@@ -192,25 +192,25 @@ function Game:new()
 
   -- Define GUI elements
   Gui.Button:new({
-    x = 760,
-    y = 40,
-    label = "Test button",
+    x = 740,
+    y = 20,
+    label = "K",
     onclick = function()
       print"hello1"
     end
   })
   Gui.Button:new({
-    x = 760,
-    y = 70,
-    label = "Test button",
+    x = 740,
+    y = 100,
+    label = "Q",
     onclick = function()
       print"hello2"
     end
   })
   Gui.Button:new({
-    x = 760,
-    y = 100,
-    label = "Test button",
+    x = 740,
+    y = 180,
+    label = "J",
     onclick = function()
       print"hello3"
     end
@@ -234,6 +234,8 @@ function Game:load()
 end
 
 function Game:update(dt)
+  Gui:update(dt)
+
   for _, card in pairs(self.cards) do
     card:update(dt)
   end
@@ -248,9 +250,12 @@ function Game:update(dt)
   else
     self.auto_fetch_delay = self.auto_fetch_delay - dt
   end
+
 end
 
 function Game:draw()
+  Gui:draw()
+
   local r,g,b = love.math.colorFromBytes(53,101, 77)
   love.graphics.setBackgroundColor(r, g, b, 1)
 
@@ -261,8 +266,6 @@ function Game:draw()
   for _, card in pairs(self.cards) do
     card:draw()
   end
-
-  Gui:draw()
 end
 
 function Game:quit()

@@ -1,3 +1,5 @@
+local SpriteAnimation = require("lib.sprite")
+
 local M = {
   elements = {},
   font = love.graphics.getFont()
@@ -7,14 +9,17 @@ function M:load()
 
 end
 
-function M:draw()
-  local r,g,b,a = love.graphics.getColor()
 
+function M:update(dt)
   for _, el in pairs(self.elements) do
-    el:draw({font = self.font, name="meu"})
+    el:update(dt)
   end
+end
 
-   love.graphics.setColor(r,g,b,a)
+function M:draw()
+  for _, el in pairs(self.elements) do
+    el:draw()
+  end
 end
 
 function M:mousepressed(mx, my, btn)
@@ -30,15 +35,43 @@ local Button = {}
 Button.__index = Button
 
 function Button:new(options)
+  local sprite_files = {}
+  for i = 1, 4, 1 do
+    table.insert(sprite_files, love.graphics.newImage(string.format("assets/button_%d.png", i)))
+  end
+
+  local sprite = SpriteAnimation:new({
+    files = sprite_files,
+    x = options.x,
+    y = options.y,
+  })
+
+  local text_width = M.font:getWidth(options.label)
+  local text_height = M.font:getHeight()
+
+  local mid_w = sprite.width/2 - text_width/2
+  local mid_h = sprite.height/2 - text_height/2
+  local mid_h_offset = 5
+
   local btn = setmetatable({
     x = options.x,
     y = options.y,
-    bgcolor = {1,1,1,1},
-    color = {0,0,0,1},
+    sprite = sprite,
+    text = {
+      color = {0,0,0,1},
+      x = options.x + mid_w,
+      y = options.y + mid_h - mid_h_offset,
+    },
+    bgcolor = {1,0,0,0.1},
     label = options.label,
-    width = M.font:getWidth(options.label),
-    height = 20,
-    onclick = options.onclick
+    width = sprite.width,
+    height = sprite.height,
+    onclick = function()
+      if sprite then
+        sprite:play()
+      end
+      options.onclick()
+    end
   }, Button)
 
   table.insert(M.elements, btn)
@@ -46,15 +79,21 @@ function Button:new(options)
   return btn
 end
 
+function Button:update(dt)
+  self.sprite:update(dt)
+end
+
 function Button:draw()
-  -- background
-  love.graphics.setColor(unpack(self.bgcolor))
-  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+  local r,g,b,a = love.graphics.getColor()
+
+  self.sprite:draw()
 
   -- text
+  print(self.x, self.text.x)
+  love.graphics.setColor(unpack(self.text.color))
+  love.graphics.print(self.label, self.text.x, self.text.y)
 
-  love.graphics.setColor(unpack(self.color))
-  love.graphics.print(self.label, self.x, self.y)
+  love.graphics.setColor(r,g,b,a)
 end
 
 function Button:contains_point(x,y)
@@ -64,7 +103,7 @@ function Button:contains_point(x,y)
     y < self.y + self.height then
       return true
     end
- 
+
   return false
 end
 
